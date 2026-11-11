@@ -25,6 +25,9 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
 
+      - name: Accept SDK licenses
+        run: yes | sdkmanager --licenses || true
+
       # The project has no gradlew / gradle-wrapper.jar, so install the
       # exact Gradle version from gradle-wrapper.properties
       - name: Set up Gradle
@@ -32,12 +35,12 @@ jobs:
         with:
           gradle-version: 9.3.1
 
-      # Finds the folder containing settings.gradle.kts, so the build also
-      # works if the project sits inside a subfolder of the repo
+      # Finds the top-level folder containing settings.gradle(.kts), so the
+      # build also works if the project sits inside a subfolder of the repo
       - name: Locate Android project
         shell: bash
         run: |
-          SETTINGS=$(find . \( -name settings.gradle.kts -o -name settings.gradle \) -not -path "*/.git/*" | head -n 1)
+          SETTINGS=$(find . \( -name settings.gradle.kts -o -name settings.gradle \) -not -path "*/.git/*" | awk '{print length, $0}' | sort -n | head -n 1 | cut -d' ' -f2-)
           if [ -z "$SETTINGS" ]; then
             TOP=$(ls -A | grep -v '^.git$' | tr '\n' ' ')
             echo "::error::No settings.gradle(.kts) in repo. Top-level files: [$TOP]"
@@ -52,6 +55,7 @@ jobs:
       - name: Create debug keystore
         run: |
           cd "$PROJECT_DIR"
+          rm -f debug.keystore
           keytool -genkeypair -v \
             -keystore debug.keystore \
             -storepass android \
@@ -87,3 +91,12 @@ jobs:
           name: toolbox-debug-apk
           path: "**/build/outputs/apk/debug/*.apk"
           if-no-files-found: error
+
+      # If the build fails, upload Gradle reports so the error can be read
+      - name: Upload build reports (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: "**/build/reports/**"
+          if-no-files-found: ignore
