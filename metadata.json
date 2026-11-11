@@ -1,0 +1,6 @@
+{
+  "name": "Toolbox",
+  "description": "All-in-One Utility Toolbox: Calculator, File Reader, News, Weather, Wallpapers, Image Compressor, Flashlight, and Task Manager.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

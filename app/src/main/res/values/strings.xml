@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Toolbox</string>
+    <string name="sign_in_google">Sign in with Google</string>
+    <string name="logout">Logout</string>
+    <string name="back">Back</string>
+    <string name="add_task" translatable="false">Add Task</string>
+    <string name="delete" translatable="false">Delete</string>
+    <string name="calculator">Calculator</string>
+    <string name="flashlight">Flashlight</string>
+    <string name="compressor">Image Compressor</string>
+    <string name="file_reader">File Reader</string>
+    <string name="apk_converter">APK Converter</string>
+    <string name="news">News</string>
+    <string name="weather">Weather</string>
+    <string name="wallpapers">Wallpapers</string>
+</resources>

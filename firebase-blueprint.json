@@ -1,0 +1,52 @@
+{
+  "collections": {
+    "users": {
+      "description": "User profiles and settings",
+      "documents": {
+        "{userId}": {
+          "fields": {
+            "displayName": "string",
+            "email": "string",
+            "photoUrl": "string",
+            "settings": {
+              "theme": "string",
+              "newsRegion": "string",
+              "weatherUnits": "string"
+            }
+          },
+          "collections": {
+            "tasks": {
+              "description": "User's to-do tasks",
+              "documents": {
+                "{taskId}": {
+                  "fields": {
+                    "title": "string",
+                    "notes": "string",
+                    "dueDate": "timestamp?",
+                    "priority": "string",
+                    "category": "string",
+                    "isCompleted": "boolean",
+                    "createdAt": "timestamp",
+                    "updatedAt": "timestamp"
+                  }
+                }
+              }
+            },
+            "calcHistory": {
+              "description": "User's calculator history",
+              "documents": {
+                "{historyId}": {
+                  "fields": {
+                    "expression": "string",
+                    "result": "string",
+                    "timestamp": "timestamp"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
