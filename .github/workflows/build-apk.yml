@@ -50,8 +50,9 @@ jobs:
           echo "Project directory: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-      # debug.keystore is in .gitignore but app/build.gradle.kts expects it
-      # at the project root, so generate it on the runner
+      # app/build.gradle.kts reads KEYSTORE_PATH, STORE_PASSWORD and
+      # KEY_PASSWORD from the environment, so create a debug keystore and
+      # export those values for the following steps
       - name: Create debug keystore
         run: |
           cd "$PROJECT_DIR"
@@ -63,6 +64,9 @@ jobs:
             -keypass android \
             -keyalg RSA -keysize 2048 -validity 10000 \
             -dname "CN=Android Debug,O=Android,C=US"
+          echo "KEYSTORE_PATH=$(pwd)/debug.keystore" >> "$GITHUB_ENV"
+          echo "STORE_PASSWORD=android" >> "$GITHUB_ENV"
+          echo "KEY_PASSWORD=android" >> "$GITHUB_ENV"
 
       # Optional: only needed if you uncomment GEMINI_API_KEY in .env.example.
       - name: Create .env (optional)
