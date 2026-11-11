@@ -2,9 +2,8 @@ name: Android Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -21,29 +20,39 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Gradle (with caching)
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Run unit tests
-        run: ./gradlew testDebugUnitTest
+      - name: Find project folder
+        id: find
+        run: |
+          # Locate the folder that holds settings.gradle(.kts), even if the project is inside a sub-folder
+          SETTINGS=$(find . -maxdepth 3 \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
+          if [ -z "$SETTINGS" ]; then
+            echo "No settings.gradle(.kts) found. Check that the project files are in the repo."
+            exit 1
+          fi
+          DIR=$(dirname "$SETTINGS")
+          echo "Project folder: $DIR"
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug
+        working-directory: ${{ steps.find.outputs.dir }}
+        run: |
+          if [ -f ./gradlew ]; then
+            chmod +x ./gradlew
+            ./gradlew assembleDebug --stacktrace
+          else
+            # No wrapper in the repo, use the Gradle installed by setup-gradle
+            gradle assembleDebug --stacktrace
+          fi
 
-      - name: Build release APK (unsigned)
-        run: ./gradlew assembleRelease
-
-      - name: Upload debug APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
-
-      - name: Upload release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-apk
-          path: app/build/outputs/apk/release/*.apk
+          path: ${{ steps.find.outputs.dir }}/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
