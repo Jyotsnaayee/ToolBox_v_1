@@ -5,11 +5,11 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:   # allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   build:
-    name: Build Release APK
+    name: Build Debug APK
     runs-on: ubuntu-latest
 
     steps:
@@ -23,19 +23,24 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Generate Gradle Wrapper (if missing)
+        run: |
+          if [ ! -f "./gradlew" ]; then
+            echo "gradlew not found — generating wrapper..."
+            gradle wrapper --gradle-version 8.13
+          fi
+          chmod +x ./gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
-
-      # Optional: Build Release APK (unsigned)
-      # - name: Build Release APK
-      #   run: ./gradlew assembleRelease
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/*.apk
-          retention-days: 7
+          retention-days: 14
+          if-no-files-found: error
