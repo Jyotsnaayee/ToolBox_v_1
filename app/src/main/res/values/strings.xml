@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <string name="app_name">Toolbox</string>
-<string name="default_web_client_id" translatable="false">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
     <string name="sign_in_google">Sign in with Google</string>
     <string name="logout">Logout</string>
     <string name="back">Back</string>

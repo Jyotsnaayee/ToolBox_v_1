@@ -2,9 +2,6 @@ package com.example.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentId
-import com.google.firebase.firestore.ServerTimestamp
 
 data class User(
     val displayName: String = "",
