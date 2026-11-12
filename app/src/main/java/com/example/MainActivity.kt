@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,16 +32,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val authRepository = AuthRepository(this)
-        val database = AppDatabase.getDatabase(this)
-        val weatherRepository = WeatherRepository()
-        val flashlightManager = FlashlightManager(this)
+        // Initialize components lazily or safely
+        val authRepository by lazy { AuthRepository(applicationContext) }
+        val database by lazy { AppDatabase.getDatabase(applicationContext) }
+        val weatherRepository by lazy { WeatherRepository() }
+        val flashlightManager by lazy { FlashlightManager(applicationContext) }
 
         setContent {
             ToolboxTheme {
                 val authViewModel: AuthViewModel = viewModel(factory = ViewModelFactory { AuthViewModel(authRepository) })
-                val currentUser by authViewModel.currentUser.collectAsState()
-                val isGuestMode by authViewModel.isGuestMode.collectAsState()
+                val currentUser by authViewModel.currentUser.collectAsStateWithLifecycle()
+                val isGuestMode by authViewModel.isGuestMode.collectAsStateWithLifecycle()
 
                 if (currentUser == null && !isGuestMode) {
                     AuthScreen(
